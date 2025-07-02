@@ -1,10 +1,10 @@
-name: Python package tests
+name: Run Python Tests for recommendation_package
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -15,28 +15,29 @@ jobs:
         python-version: [3.9, 3.10, 3.11]
 
     steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v3
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
 
-    - name: 🐍 Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: 🔧 Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r dev-requirements.txt || true  # skip if file is missing
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ./recommendation_package
+          pip install -r recommendation_package/requirements.txt || true
 
-    - name: 🧪 Run tests with pytest
-      run: |
-        pytest --cov=recommender
+      - name: 🧪 Run Pytest
+        working-directory: recommendation_package
+        run: |
+          pytest --cov=recommender tests/
 
-    - name: 📊 Upload coverage report (optional)
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: htmlcov/
+      - name: 📊 Upload coverage report (optional)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: recommendation_package/htmlcov/
 
